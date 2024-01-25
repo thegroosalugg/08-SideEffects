@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
 import Places from "./components/Places.jsx";
 import { AVAILABLE_PLACES } from "./data.js";
@@ -11,15 +11,24 @@ function App() {
   const modal = useRef();
   const selectedPlace = useRef();
   const [pickedPlaces, setPickedPlaces] = useState([]);
+  const [availablePlaces, setAvailablePlaces] = useState([]);
 
-  navigator.geolocation.getCurrentPosition((position) => { //  navigator geolocation function is part of the Geolocation API
-    const sortedPlaces = sortPlacesByDistance(
-      AVAILABLE_PLACES,
-      position.coords.latitude, // position is an object with the coords & lat/long key values
-      position.coords.longitude
-    );
-  }); // this function is a side effect as it does not carry out the main purpose of the component, to return renderable JSX code
-      // additionally  it may not execute its function when the app renders, but at another interval
+  // useEffect takes 2 arguments, an empty arrow function with the code we want to run...
+  //... and a dependency array that will only re-execute the function if the dependency values change
+  useEffect(() => {
+    // this function is a side effect as it does not carry out the main purpose of the component, to return renderable JSX code
+    // additionally  it may not execute its function when the app renders, but at another interval
+    navigator.geolocation.getCurrentPosition((position) => {
+      //  navigator geolocation function is part of the Geolocation API
+      const sortedPlaces = sortPlacesByDistance(
+        AVAILABLE_PLACES,
+        position.coords.latitude, // position is an object with the coords & lat/long key values
+        position.coords.longitude
+      );
+
+      setAvailablePlaces(sortedPlaces); // without useEffect, this code would cause an infinite loop as the location is fecthed each time the state is set
+    });
+  }, []); // Empty dependency array ensures that the effect runs only once on mount
 
   function handleStartRemovePlace(id) {
     modal.current.open();
@@ -73,7 +82,8 @@ function App() {
         />
         <Places
           title="Available Places"
-          places={AVAILABLE_PLACES}
+          places={availablePlaces}
+          fallbackText='Awaiting Location...'
           onSelectPlace={handleSelectPlace}
         />
       </main>
