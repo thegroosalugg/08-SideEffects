@@ -47,6 +47,19 @@ function App() {
       const place = AVAILABLE_PLACES.find((place) => place.id === id);
       return [place, ...prevPickedPlaces];
     });
+
+    // Get data from localStorage with the key "selectedPlaces".
+    // JSON parse is the opposite of stringify, which will convert the string back to an array
+    const storedIds = JSON.parse(localStorage.getItem("selectedPlaces")) || []; // If the data doesn't exist, default to an empty array.
+    // Check if the current 'id' is not already present in the stored data.
+    if (storedIds.indexOf(id) === -1) {
+      // If 'id' is not in the stored data, add it to the array.
+      // The array is then converted back to a string and stored in localStorage.
+      localStorage.setItem( // setItem take a key value pair as arguments, both must be in string format
+        "selectedPlaces",
+        JSON.stringify([id, ...storedIds]) // JSON is a build-in browser component which converts datatypes to string
+      );
+    }
   }
 
   function handleRemovePlace() {
@@ -83,7 +96,7 @@ function App() {
         <Places
           title="Available Places"
           places={availablePlaces}
-          fallbackText='Awaiting Location...'
+          fallbackText="Awaiting Location..."
           onSelectPlace={handleSelectPlace}
         />
       </main>
