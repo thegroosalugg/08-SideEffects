@@ -1,5 +1,4 @@
 import { useRef, useState, useEffect } from "react";
-
 import Places from "./components/Places.jsx";
 import { AVAILABLE_PLACES } from "./data.js";
 import Modal from "./components/Modal.jsx";
@@ -7,11 +6,17 @@ import DeleteConfirmation from "./components/DeleteConfirmation.jsx";
 import logoImg from "./assets/logo.png";
 import { sortPlacesByDistance } from "./loc.js";
 
+// local storage ID fetch only needs to run once when we run the app and does not need re-execution with every state change
+const storedIds = JSON.parse(localStorage.getItem("selectedPlaces")) || []; // fetch stored IDs (if any) or initialize with empty array
+const storedPlaces = storedIds.map((id) =>
+  AVAILABLE_PLACES.find((place) => place.id === id)
+);
+
 function App() {
   const modal = useRef();
   const selectedPlace = useRef();
-  const [pickedPlaces, setPickedPlaces] = useState([]);
   const [availablePlaces, setAvailablePlaces] = useState([]);
+  const [pickedPlaces, setPickedPlaces] = useState(storedPlaces); // state initialised with stored IDs (if any) or an empty array
 
   // useEffect takes 2 arguments, an empty arrow function with the code we want to run...
   //... and a dependency array that will only re-execute the function if the dependency values change
@@ -55,7 +60,8 @@ function App() {
     if (storedIds.indexOf(id) === -1) {
       // If 'id' is not in the stored data, add it to the array.
       // The array is then converted back to a string and stored in localStorage.
-      localStorage.setItem( // setItem take a key value pair as arguments, both must be in string format
+      localStorage.setItem(
+        // setItem take a key value pair as arguments, both must be in string format
         "selectedPlaces",
         JSON.stringify([id, ...storedIds]) // JSON is a build-in browser component which converts datatypes to string
       );
@@ -67,6 +73,12 @@ function App() {
       prevPickedPlaces.filter((place) => place.id !== selectedPlace.current)
     );
     modal.current.close();
+
+    const storedIds = JSON.parse(localStorage.getItem("selectedPlaces")) || [];
+    localStorage.setItem(
+      "selectedPlaces",
+      JSON.stringify(storedIds.filter((id) => id !== selectedPlace.current))
+    ); // if the ID does not match of the selected place ref, filter returns true and we keep the item, if they match it returns false and deletes it
   }
 
   return (
