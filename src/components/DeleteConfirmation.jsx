@@ -1,20 +1,9 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import ProgressBar from "./ProgressBar";
 
 const TIMER = 3000;
 
 export default function DeleteConfirmation({ onConfirm, onCancel }) {
-  const [remainingTime, setRemainingTime] = useState(TIMER);
-
-  useEffect(() => {
-    const interval = setInterval(() => { // set interval will run a function every interval
-      setRemainingTime((prevTime) => {prevTime - 10});
-    }, 10);
-
-    return () => {
-      clearInterval(interval); // prevents interval running an infinite loop after the modal expires
-    };
-  }, []); // no dependencies so function will not run again until a new modal is rendered
-
   useEffect(() => {
     const timer = setTimeout(() => {
       onConfirm(); // will run 'Yes' and delete selected place after timer expires
@@ -38,7 +27,8 @@ export default function DeleteConfirmation({ onConfirm, onCancel }) {
           Yes
         </button>
       </div>
-      <progress value={remainingTime} max={TIMER} />
+      {/* Progress bar converted to a component so the remaining code in this function does not re-execute every interval */}
+      <ProgressBar timer={TIMER} />
     </div>
   );
 }
