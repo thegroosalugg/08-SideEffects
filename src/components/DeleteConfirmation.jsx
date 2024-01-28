@@ -9,7 +9,8 @@ export default function DeleteConfirmation({ onConfirm, onCancel }) {
     return () => {
       clearTimeout(timer) // ensures timer is cleared if 'No' is selected
     }
-  }, [])
+  }, [onConfirm]) // functions passed as dependencies always change when the app is rerendered, even if the code is the same
+                  // use callback is required to wrap this function to prevent it
 
   return (
     <div id="delete-confirmation">

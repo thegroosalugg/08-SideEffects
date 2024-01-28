@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import Places from "./components/Places.jsx";
 import { AVAILABLE_PLACES } from "./data.js";
 import Modal from "./components/Modal.jsx";
@@ -36,12 +36,12 @@ function App() {
   }, []); // Empty dependency array ensures that the effect runs only once on mount
 
   function handleStartRemovePlace(id) {
-    setModalOpen(true)
+    setModalOpen(true);
     selectedPlace.current = id;
   }
 
   function handleStopRemovePlace() {
-    setModalOpen(false)
+    setModalOpen(false);
   }
 
   function handleSelectPlace(id) {
@@ -68,7 +68,7 @@ function App() {
     }
   }
 
-  function handleRemovePlace() {
+  const handleRemovePlace = useCallback(function handleRemovePlace() { // useCallback prevents the function from being executed each time App is rendered
     setPickedPlaces((prevPickedPlaces) =>
       prevPickedPlaces.filter((place) => place.id !== selectedPlace.current)
     );
@@ -79,9 +79,10 @@ function App() {
       "selectedPlaces",
       JSON.stringify(storedIds.filter((id) => id !== selectedPlace.current))
     ); // if the ID does not match of the selected place ref, filter returns true and we keep the item, if they match it returns false and deletes it
-  }
+  }, []); // list of dependencies that would cause this function to reexecute. In this case none, so it will not run each time app is rendered
 
-  return (                 // onClose prop is required to change state if modal is closed with ESC key
+  return (
+    // onClose prop is required to change state if modal is closed with ESC key
     <>
       <Modal open={modalOpen} onClose={handleStopRemovePlace}>
         <DeleteConfirmation
