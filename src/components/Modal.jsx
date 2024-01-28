@@ -14,7 +14,8 @@ export default function Modal({ open, onClose, children }) {
 
   return createPortal(                  // onClose prop is required to change state if modal is closed with ESC key
     <dialog className="modal" ref={dialog} onClose={onClose}>
-      {children}
+      {/* children are rendered dynamically with state to ensure timer inside DeleteConfirmation doesn't execute as soon as app is ran */}
+      {open ? children : null}
     </dialog>,
     document.getElementById("modal")
   );
