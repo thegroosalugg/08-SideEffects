@@ -13,8 +13,8 @@ const storedPlaces = storedIds.map((id) =>
 );
 
 function App() {
-  const modal = useRef();
   const selectedPlace = useRef();
+  const [modalOpen, setModalOpen] = useState(false);
   const [availablePlaces, setAvailablePlaces] = useState([]);
   const [pickedPlaces, setPickedPlaces] = useState(storedPlaces); // state initialised with stored IDs (if any) or an empty array
 
@@ -36,12 +36,12 @@ function App() {
   }, []); // Empty dependency array ensures that the effect runs only once on mount
 
   function handleStartRemovePlace(id) {
-    modal.current.open();
+    setModalOpen(true)
     selectedPlace.current = id;
   }
 
   function handleStopRemovePlace() {
-    modal.current.close();
+    setModalOpen(false)
   }
 
   function handleSelectPlace(id) {
@@ -72,7 +72,7 @@ function App() {
     setPickedPlaces((prevPickedPlaces) =>
       prevPickedPlaces.filter((place) => place.id !== selectedPlace.current)
     );
-    modal.current.close();
+    setModalOpen(false)
 
     const storedIds = JSON.parse(localStorage.getItem("selectedPlaces")) || [];
     localStorage.setItem(
@@ -81,9 +81,9 @@ function App() {
     ); // if the ID does not match of the selected place ref, filter returns true and we keep the item, if they match it returns false and deletes it
   }
 
-  return (
+  return (                 // onClose prop is required to change state if modal is closed with ESC key
     <>
-      <Modal ref={modal}>
+      <Modal open={modalOpen} onClose={handleStopRemovePlace}>
         <DeleteConfirmation
           onCancel={handleStopRemovePlace}
           onConfirm={handleRemovePlace}
